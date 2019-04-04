@@ -4,19 +4,17 @@ var connection = mysql.createConnection({
     host:"localhost",
     port:3306,
     user:"root",
-    password:"insert_your_password",
+    password:"Thebleepingcat96!",
     database: "bamazon"
 });
 
 connection.connect(function(){
+   console.log("Connected as id " + connection.threadId);
    start();
-   console.log("Thank you, come again!");
-   
-    
 });
 
 function start(){
-    console.log("Connected as id " + connection.threadId);
+    
     connection.query("SELECT * FROM products", 
     function(err, res){
         if (err){
@@ -64,7 +62,7 @@ function depleteStock(product, amount){
                 console.log(error);
             }
 
-            if (response[0].stock_quantity > 0){
+            if (response[0].stock_quantity > 0 && amount <= response[0].stock_quantity){
                 var newStock = response[0].stock_quantity - amount;
                 connection.query("UPDATE products SET ? WHERE ?",
                 [
@@ -78,8 +76,11 @@ function depleteStock(product, amount){
                 console.log("Payment processed.");
                 console.log("You've spent $" + response[0].price * amount + " on " + product + ". Hope it was worth it.");
             }
-            else {
+            else if (response[0].stock_quantity === 0){
                 console.log("We're out of " + product + "....mow-ron.");
+            }
+            else {
+                console.log("Not enough in stock to purchase.");
             }
             start();
         });
